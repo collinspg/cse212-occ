@@ -13,7 +13,13 @@ public class CustomerService {
         // Test 1
         // Scenario: 
         // Expected Result: 
-        Console.WriteLine("Test 1");
+        // Enqueue one customer and dequeue them
+        Console.WriteLine("Test 1: Add one customer, then serve them"); 
+        var cs1 = new CustomerService(5); // max size 5
+        Console.SetIn(new System.IO.StringReader("Alice\nA001\nPassword issue")); 
+        cs1.AddNewCustomer(); 
+        Console.WriteLine("Serving customer:"); 
+        cs1.ServeCustomer();
 
         // Defect(s) Found: 
 
@@ -22,13 +28,49 @@ public class CustomerService {
         // Test 2
         // Scenario: 
         // Expected Result: 
-        Console.WriteLine("Test 2");
+        // Enqueue multiple customers and serve in FIFO order
+        Console.WriteLine("Test 2: Add multiple customers, then serve in FIFO order");
+        var cs2 = new CustomerService(5);
+        Console.SetIn(new System.IO.StringReader(
+            "Bob\nB002\nLogin problem\nCharlie\nC003\nPayment issue\nDiana\nD004\nAccount locked"
+        ));
+        cs2.AddNewCustomer();
+        cs2.AddNewCustomer();
+        cs2.AddNewCustomer();
+        Console.WriteLine("Serving customer 1:");
+        cs2.ServeCustomer(); // Bob
+        Console.WriteLine("Serving customer 2:");
+        cs2.ServeCustomer(); // Charlie
+        Console.WriteLine("Serving customer 3:");
+        cs2.ServeCustomer(); // Diana
 
         // Defect(s) Found: 
 
         Console.WriteLine("=================");
 
         // Add more Test Cases As Needed Below
+
+        // Test 3 - Attempt to serve from an empty queue
+        Console.WriteLine("Test 3: Serve from empty queue");
+        var cs3 = new CustomerService(3);
+        cs3.ServeCustomer(); // Should print: No customers in the queue
+        Console.WriteLine("=================");
+
+        // Test 4 - Attempt to add more customers than max size
+        Console.WriteLine("Test 4: Enqueue more than max size"); 
+        var cs4 = new CustomerService(2);
+        Console.SetIn(new System.IO.StringReader(
+            "Eve\nE005\nPassword\nFrank\nF006\nBilling\nGrace\nG007\nSupport"
+        ));
+        cs4.AddNewCustomer(); // Eve
+        cs4.AddNewCustomer(); // Frank
+        cs4.AddNewCustomer(); // Grace -> Should print max queue message
+        Console.WriteLine("=================");
+
+        // Test 5 - Display current queue with ToString
+        Console.WriteLine("Test 5: Display current queue"); // TEST CODE ADDED
+        Console.WriteLine(cs4); // Should show 2 customers in the queue (Eve, Frank)
+        Console.WriteLine("=================");
     }
 
     private readonly List<Customer> _queue = new();
@@ -62,12 +104,13 @@ public class CustomerService {
     }
 
     /// <summary>
+    /// FIXED: AddNewCustomer now checks >= and is public for testing
     /// Prompt the user for the customer and problem information.  Put the 
     /// new record into the queue.
     /// </summary>
-    private void AddNewCustomer() {
+    public void AddNewCustomer() {
         // Verify there is room in the service queue
-        if (_queue.Count > _maxSize) {
+        if (_queue.Count >= _maxSize) { // FIXED: >= instead of >
             Console.WriteLine("Maximum Number of Customers in Queue.");
             return;
         }
@@ -85,11 +128,16 @@ public class CustomerService {
     }
 
     /// <summary>
+    /// FIXED: ServeCustomer now prints the correct customer and checks empty queue
     /// Dequeue the next customer and display the information.
     /// </summary>
-    private void ServeCustomer() {
-        _queue.RemoveAt(0);
-        var customer = _queue[0];
+    public void ServeCustomer() {
+        if (_queue.Count == 0) { // Prevent error
+            Console.WriteLine("No customers in the queue.");
+            return;
+        }
+        var customer = _queue[0]; // Save before removing
+        _queue.RemoveAt(0);        // Remove after saving
         Console.WriteLine(customer);
     }
 
