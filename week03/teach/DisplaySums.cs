@@ -28,6 +28,21 @@
     /// </summary>
     /// <param name="numbers">array of integers</param>
     private static void DisplaySumPairs(int[] numbers) {
-        // TODO Problem 2 - This should print pairs of numbers in the given array
+    // Set to keep track of numbers we have seen
+        var seen = new HashSet<int>();
+
+        foreach (var x in numbers)
+        {
+            int complement = 10 - x;
+
+            // If the complement has been seen before, print the pair
+            if (seen.Contains(complement))
+            {
+                Console.WriteLine($"{x} {complement}");
+            }
+
+            // Add the current number to the seen set
+            seen.Add(x);
+        }
     }
 }
